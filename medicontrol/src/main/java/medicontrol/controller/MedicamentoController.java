@@ -1,56 +1,73 @@
-// Define o pacote onde essa classe está localizada
+// Define o pacote da classe
 package medicontrol.controller;
 
-// Importa a classe Medicamento criada no projeto
+// Importa a entidade Medicamento
 import medicontrol.entity.Medicamento;
 
-// Importa a anotação para criar rotas GET
+// Importa anotação para rota GET
 import org.springframework.web.bind.annotation.GetMapping;
 
-// Importa a anotação que transforma a classe em um controller REST
+// Importa anotação para rota POST
+import org.springframework.web.bind.annotation.PostMapping;
+
+// Importa anotação para receber JSON no corpo da requisição
+import org.springframework.web.bind.annotation.RequestBody;
+
+// Importa anotação de controller REST
 import org.springframework.web.bind.annotation.RestController;
 
-// Importa a classe ArrayList
+// Importa ArrayList
 import java.util.ArrayList;
 
-// Importa a interface List
+// Importa List
 import java.util.List;
 
-// Indica que esta classe será um controller REST
-// Ou seja, responderá requisições HTTP
+// Define a classe como controller REST
 @RestController
 public class MedicamentoController {
 
-    // Cria uma rota GET no endereço:
+    // Cria rota GET:
     // http://localhost:8080/medicamentos
     @GetMapping("/medicamentos")
     public List<Medicamento> listarMedicamentos() {
 
-        // Cria uma lista vazia de medicamentos
+        // Cria lista de medicamentos
         List<Medicamento> lista = new ArrayList<>();
 
-        // Cria um objeto do tipo Medicamento
+        // Cria objeto medicamento
         Medicamento medicamento = new Medicamento();
 
-        // Define o ID do medicamento
+        // Define ID
         medicamento.setId(1L);
 
-        // Define o nome do medicamento
+        // Define nome
         medicamento.setNome("Dipirona");
 
-        // Define a dosagem
+        // Define dosagem
         medicamento.setDosagem("500mg");
 
-        // Define o horário do medicamento
+        // Define horário
         medicamento.setHorario("08:00");
 
-        // Define uma observação
+        // Define observação
         medicamento.setObservacao("Tomar após café");
 
-        // Adiciona o medicamento dentro da lista
+        // Adiciona medicamento na lista
         lista.add(medicamento);
 
-        // Retorna a lista em formato JSON
+        // Retorna lista em JSON
         return lista;
+    }
+
+    // Cria rota POST:
+    // http://localhost:8080/medicamentos
+    @PostMapping("/medicamentos")
+    public Medicamento cadastrarMedicamento(
+
+            // Recebe JSON enviado na requisição
+            @RequestBody Medicamento medicamento) {
+
+        // Retorna o medicamento recebido
+        return medicamento;
     }
 }
