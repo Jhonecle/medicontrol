@@ -7,6 +7,9 @@ import medicontrol.dto.MedicamentoDTO;
 // Importa entidade Medicamento
 import medicontrol.entity.Medicamento;
 
+// Importa classe de resposta padrão da API
+import medicontrol.response.ApiResponse;
+
 // Importa Service
 import medicontrol.service.MedicamentoService;
 
@@ -41,10 +44,17 @@ public class MedicamentoController {
     // URL:
     // http://localhost:8080/medicamentos
     @GetMapping
-    public List<Medicamento> listarMedicamentos() {
+    public ApiResponse<List<Medicamento>> listarMedicamentos() {
 
-        // Retorna todos os medicamentos
-        return service.listarTodos();
+        // Busca todos os medicamentos
+        List<Medicamento> lista = service.listarTodos();
+
+        // Retorna resposta padronizada
+        return new ApiResponse<>(
+                true,
+                "Medicamentos listados com sucesso",
+                lista
+        );
     }
 
     // ==================================================
@@ -55,10 +65,18 @@ public class MedicamentoController {
     // URL:
     // http://localhost:8080/medicamentos/1
     @GetMapping("/{id}")
-    public Medicamento buscarPorId(@PathVariable Long id) {
+    public ApiResponse<Medicamento> buscarPorId(
+            @PathVariable Long id) {
 
         // Busca medicamento pelo ID
-        return service.buscarPorId(id);
+        Medicamento medicamento = service.buscarPorId(id);
+
+        // Retorna resposta padronizada
+        return new ApiResponse<>(
+                true,
+                "Medicamento encontrado com sucesso",
+                medicamento
+        );
     }
 
     // ==================================================
@@ -69,7 +87,7 @@ public class MedicamentoController {
     // URL:
     // http://localhost:8080/medicamentos
     @PostMapping
-    public Medicamento cadastrarMedicamento(
+    public ApiResponse<Medicamento> cadastrarMedicamento(
 
             // Recebe DTO validado
             @Valid @RequestBody MedicamentoDTO dto) {
@@ -83,8 +101,15 @@ public class MedicamentoController {
         medicamento.setHorario(dto.getHorario());
         medicamento.setObservacao(dto.getObservacao());
 
-        // Salva medicamento
-        return service.salvar(medicamento);
+        // Salva medicamento no banco
+        Medicamento salvo = service.salvar(medicamento);
+
+        // Retorna resposta padronizada
+        return new ApiResponse<>(
+                true,
+                "Medicamento cadastrado com sucesso",
+                salvo
+        );
     }
 
     // ==================================================
@@ -95,7 +120,7 @@ public class MedicamentoController {
     // URL:
     // http://localhost:8080/medicamentos/1
     @PutMapping("/{id}")
-    public Medicamento atualizarMedicamento(
+    public ApiResponse<Medicamento> atualizarMedicamento(
 
             // Recebe ID da URL
             @PathVariable Long id,
@@ -113,7 +138,14 @@ public class MedicamentoController {
         medicamentoAtualizado.setObservacao(dto.getObservacao());
 
         // Atualiza medicamento
-        return service.atualizar(id, medicamentoAtualizado);
+        Medicamento atualizado = service.atualizar(id, medicamentoAtualizado);
+
+        // Retorna resposta padronizada
+        return new ApiResponse<>(
+                true,
+                "Medicamento atualizado com sucesso",
+                atualizado
+        );
     }
 
     // ==================================================
@@ -124,9 +156,17 @@ public class MedicamentoController {
     // URL:
     // http://localhost:8080/medicamentos/1
     @DeleteMapping("/{id}")
-    public void deletarMedicamento(@PathVariable Long id) {
+    public ApiResponse<String> deletarMedicamento(
+            @PathVariable Long id) {
 
         // Remove medicamento
         service.deletar(id);
+
+        // Retorna resposta padronizada
+        return new ApiResponse<>(
+                true,
+                "Medicamento removido com sucesso",
+                "ID removido: " + id
+        );
     }
 }
