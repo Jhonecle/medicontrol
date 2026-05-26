@@ -1,6 +1,9 @@
 // Define o pacote da classe
 package medicontrol.controller;
 
+// Importa DTO
+import medicontrol.dto.MedicamentoDTO;
+
 // Importa entidade Medicamento
 import medicontrol.entity.Medicamento;
 
@@ -68,8 +71,17 @@ public class MedicamentoController {
     @PostMapping
     public Medicamento cadastrarMedicamento(
 
-            // Valida os campos recebidos
-            @Valid @RequestBody Medicamento medicamento) {
+            // Recebe DTO validado
+            @Valid @RequestBody MedicamentoDTO dto) {
+
+        // Cria objeto da entidade
+        Medicamento medicamento = new Medicamento();
+
+        // Copia dados do DTO para entidade
+        medicamento.setNome(dto.getNome());
+        medicamento.setDosagem(dto.getDosagem());
+        medicamento.setHorario(dto.getHorario());
+        medicamento.setObservacao(dto.getObservacao());
 
         // Salva medicamento
         return service.salvar(medicamento);
@@ -88,8 +100,17 @@ public class MedicamentoController {
             // Recebe ID da URL
             @PathVariable Long id,
 
-            // Valida os campos recebidos
-            @Valid @RequestBody Medicamento medicamentoAtualizado) {
+            // Recebe DTO validado
+            @Valid @RequestBody MedicamentoDTO dto) {
+
+        // Cria entidade
+        Medicamento medicamentoAtualizado = new Medicamento();
+
+        // Copia dados do DTO para entidade
+        medicamentoAtualizado.setNome(dto.getNome());
+        medicamentoAtualizado.setDosagem(dto.getDosagem());
+        medicamentoAtualizado.setHorario(dto.getHorario());
+        medicamentoAtualizado.setObservacao(dto.getObservacao());
 
         // Atualiza medicamento
         return service.atualizar(id, medicamentoAtualizado);
