@@ -1,61 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Define o projeto Maven -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <!-- Versão do modelo Maven -->
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Configuração principal do Spring Boot -->
+    <!-- Projeto pai do Spring Boot -->
     <parent>
+
+        <!-- Grupo do Spring -->
         <groupId>org.springframework.boot</groupId>
+
+        <!-- Starter principal do Spring Boot -->
         <artifactId>spring-boot-starter-parent</artifactId>
+
+        <!-- Versão do Spring Boot -->
         <version>3.5.14</version>
+
+        <!-- Busca automática -->
         <relativePath/>
+
     </parent>
 
     <!-- Informações do projeto -->
     <groupId>com.medicontrol</groupId>
     <artifactId>medicontrol</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <!-- Nome do projeto -->
     <name>medicontrol</name>
+
+    <!-- Descrição -->
     <description>Sistema de controle de medicamentos</description>
 
-    <!-- Versão do Java -->
+    <!-- Configurações -->
     <properties>
+
+        <!-- Define a versão do Java -->
         <java.version>17</java.version>
+
     </properties>
 
-    <!-- Dependências -->
+    <!-- Dependências do projeto -->
     <dependencies>
 
-        <!-- Spring Web -->
+        <!-- ========================= -->
+        <!-- SPRING WEB -->
+        <!-- ========================= -->
+
+        <!-- Criação de APIs REST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Data JPA -->
+        <!-- ========================= -->
+        <!-- SPRING DATA JPA -->
+        <!-- ========================= -->
+
+        <!-- Integração com banco de dados -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- PostgreSQL -->
+        <!-- ========================= -->
+        <!-- POSTGRESQL -->
+        <!-- ========================= -->
+
+        <!-- Driver do PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- ========================= -->
+        <!-- LOMBOK -->
+        <!-- ========================= -->
+
+        <!-- Redução de código boilerplate -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- Dependências de teste -->
+        <!-- ========================= -->
+        <!-- TESTES -->
+        <!-- ========================= -->
+
+        <!-- Biblioteca de testes do Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -64,36 +103,57 @@
 
     </dependencies>
 
-    <!-- Build do Maven -->
+    <!-- Configuração de build -->
     <build>
+
         <plugins>
 
-            <!-- Plugin Spring Boot -->
+            <!-- ========================= -->
+            <!-- PLUGIN SPRING BOOT -->
+            <!-- ========================= -->
+
+            <!-- Permite executar o projeto -->
             <plugin>
+
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
             </plugin>
 
-            <!-- Plugin do compilador -->
+            <!-- ========================= -->
+            <!-- COMPILADOR MAVEN -->
+            <!-- ========================= -->
+
             <plugin>
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
 
+                <!-- Versão do plugin -->
+                <version>3.11.0</version>
+
                 <configuration>
+
+                    <!-- Processadores de anotação -->
                     <annotationProcessorPaths>
 
                         <!-- Lombok -->
                         <path>
+
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>1.18.38</version>
+
                         </path>
 
                     </annotationProcessorPaths>
+
                 </configuration>
 
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>

@@ -1,10 +1,27 @@
-// Define o pacote onde esta classe está localizada
+// Define o pacote onde a entidade está localizada
 package medicontrol.entity;
+
+// Importações do JPA (Java Persistence API)
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+// Indica que esta classe representa uma tabela no banco de dados
+@Entity
+
+// Define o nome da tabela no banco
+@Table(name = "medicamentos")
 
 // Classe que representa um medicamento do sistema
 public class Medicamento {
 
-    // Identificador único do medicamento
+    // Define a chave primária da tabela
+    @Id
+
+    // Define que o ID será gerado automaticamente
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // Nome do medicamento
@@ -21,10 +38,14 @@ public class Medicamento {
     // Exemplo: Tomar após café
     private String observacao;
 
-    // Construtor vazio da classe
-    // Necessário para o Spring Boot criar objetos automaticamente
+    // Construtor vazio
+    // Obrigatório para o funcionamento do Spring Boot e JPA
     public Medicamento() {
     }
+
+    // =========================
+    // GETTERS E SETTERS
+    // =========================
 
     // Retorna o ID do medicamento
     public Long getId() {
