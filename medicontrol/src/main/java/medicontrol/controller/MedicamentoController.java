@@ -1,38 +1,37 @@
-// Define o pacote onde a classe está localizada
+// Define o pacote da classe
 package medicontrol.controller;
 
-// Importa a entidade Medicamento
+// Importa entidade Medicamento
 import medicontrol.entity.Medicamento;
 
-// Importa o Repository responsável pela comunicação com o banco
-import medicontrol.repository.MedicamentoRepository;
+// Importa Service
+import medicontrol.service.MedicamentoService;
 
-// Importa injeção de dependência do Spring
+// Importa validações
+import jakarta.validation.Valid;
+
+// Importa injeção de dependência
 import org.springframework.beans.factory.annotation.Autowired;
 
-// Importa anotações REST do Spring Boot
+// Importa anotações REST
 import org.springframework.web.bind.annotation.*;
 
 // Importa List
 import java.util.List;
 
-// Define esta classe como um Controller REST
+// Define classe como REST Controller
 @RestController
 
-// Define a rota principal da API
-// Todas as rotas começarão com:
-/*
-    http://localhost:8080/medicamentos
-*/
+// Define rota principal
 @RequestMapping("/medicamentos")
 public class MedicamentoController {
 
-    // Injeta automaticamente o Repository
+    // Injeta o Service
     @Autowired
-    private MedicamentoRepository repository;
+    private MedicamentoService service;
 
     // ==================================================
-    // LISTAR TODOS OS MEDICAMENTOS
+    // LISTAR TODOS
     // ==================================================
 
     // Endpoint GET
@@ -41,30 +40,26 @@ public class MedicamentoController {
     @GetMapping
     public List<Medicamento> listarMedicamentos() {
 
-        // Retorna todos os medicamentos cadastrados no banco
-        return repository.findAll();
+        // Retorna todos os medicamentos
+        return service.listarTodos();
     }
 
     // ==================================================
-    // BUSCAR MEDICAMENTO POR ID
+    // BUSCAR POR ID
     // ==================================================
 
     // Endpoint GET por ID
     // URL:
     // http://localhost:8080/medicamentos/1
     @GetMapping("/{id}")
-    public Medicamento buscarPorId(
+    public Medicamento buscarPorId(@PathVariable Long id) {
 
-            // Recebe o ID enviado na URL
-            @PathVariable Long id) {
-
-        // Busca o medicamento pelo ID
-        // Caso não encontre, retorna null
-        return repository.findById(id).orElse(null);
+        // Busca medicamento pelo ID
+        return service.buscarPorId(id);
     }
 
     // ==================================================
-    // CADASTRAR MEDICAMENTO
+    // CADASTRAR
     // ==================================================
 
     // Endpoint POST
@@ -73,15 +68,15 @@ public class MedicamentoController {
     @PostMapping
     public Medicamento cadastrarMedicamento(
 
-            // Recebe os dados enviados em JSON
-            @RequestBody Medicamento medicamento) {
+            // Valida os campos recebidos
+            @Valid @RequestBody Medicamento medicamento) {
 
-        // Salva o medicamento no PostgreSQL
-        return repository.save(medicamento);
+        // Salva medicamento
+        return service.salvar(medicamento);
     }
 
     // ==================================================
-    // ATUALIZAR MEDICAMENTO
+    // ATUALIZAR
     // ==================================================
 
     // Endpoint PUT
@@ -90,46 +85,27 @@ public class MedicamentoController {
     @PutMapping("/{id}")
     public Medicamento atualizarMedicamento(
 
-            // Recebe o ID enviado na URL
+            // Recebe ID da URL
             @PathVariable Long id,
 
-            // Recebe os novos dados enviados no JSON
-            @RequestBody Medicamento medicamentoAtualizado) {
+            // Valida os campos recebidos
+            @Valid @RequestBody Medicamento medicamentoAtualizado) {
 
-        // Busca o medicamento no banco
-        Medicamento medicamento = repository.findById(id).orElse(null);
-
-        // Verifica se o medicamento existe
-        if (medicamento != null) {
-
-            // Atualiza os dados
-            medicamento.setNome(medicamentoAtualizado.getNome());
-            medicamento.setDosagem(medicamentoAtualizado.getDosagem());
-            medicamento.setHorario(medicamentoAtualizado.getHorario());
-            medicamento.setObservacao(medicamentoAtualizado.getObservacao());
-
-            // Salva as alterações no banco
-            return repository.save(medicamento);
-        }
-
-        // Retorna null caso o medicamento não exista
-        return null;
+        // Atualiza medicamento
+        return service.atualizar(id, medicamentoAtualizado);
     }
 
     // ==================================================
-    // DELETAR MEDICAMENTO
+    // DELETAR
     // ==================================================
 
     // Endpoint DELETE
     // URL:
     // http://localhost:8080/medicamentos/1
     @DeleteMapping("/{id}")
-    public void deletarMedicamento(
+    public void deletarMedicamento(@PathVariable Long id) {
 
-            // Recebe o ID enviado na URL
-            @PathVariable Long id) {
-
-        // Remove o medicamento do banco
-        repository.deleteById(id);
+        // Remove medicamento
+        service.deletar(id);
     }
 }

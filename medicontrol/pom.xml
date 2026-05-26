@@ -40,7 +40,7 @@
     <!-- Configurações -->
     <properties>
 
-        <!-- Define a versão do Java -->
+        <!-- Define versão do Java -->
         <java.version>17</java.version>
 
     </properties>
@@ -56,6 +56,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ========================= -->
+        <!-- VALIDAÇÕES -->
+        <!-- ========================= -->
+
+        <!-- Permite usar:
+             @Valid
+             @NotBlank
+             @NotNull
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- ========================= -->
@@ -83,7 +97,7 @@
         <!-- LOMBOK -->
         <!-- ========================= -->
 
-        <!-- Redução de código boilerplate -->
+        <!-- Redução de código repetitivo -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

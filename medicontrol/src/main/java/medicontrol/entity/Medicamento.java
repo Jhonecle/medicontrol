@@ -1,98 +1,102 @@
-// Define o pacote onde a entidade está localizada
+// Define o pacote da classe
 package medicontrol.entity;
 
-// Importações do JPA (Java Persistence API)
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+// Importa anotações JPA
+import jakarta.persistence.*;
 
-// Indica que esta classe representa uma tabela no banco de dados
+// Importa validações
+import jakarta.validation.constraints.NotBlank;
+
+// Define esta classe como entidade do banco
 @Entity
 
-// Define o nome da tabela no banco
+// Define nome da tabela
 @Table(name = "medicamentos")
-
-// Classe que representa um medicamento do sistema
 public class Medicamento {
 
-    // Define a chave primária da tabela
+    // Define chave primária
     @Id
 
-    // Define que o ID será gerado automaticamente
+    // Gera ID automaticamente
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Nome do medicamento
+    // ==================================================
+    // NOME
+    // ==================================================
+
+    // Campo obrigatório
+    @NotBlank(message = "O nome do medicamento é obrigatório")
     private String nome;
 
-    // Dosagem do medicamento
-    // Exemplo: 500mg
+    // ==================================================
+    // DOSAGEM
+    // ==================================================
+
+    // Campo obrigatório
+    @NotBlank(message = "A dosagem é obrigatória")
     private String dosagem;
 
-    // Horário em que o medicamento deve ser tomado
+    // ==================================================
+    // HORÁRIO
+    // ==================================================
+
+    // Campo obrigatório
+    @NotBlank(message = "O horário é obrigatório")
     private String horario;
 
-    // Observações adicionais
-    // Exemplo: Tomar após café
+    // ==================================================
+    // OBSERVAÇÃO
+    // ==================================================
+
     private String observacao;
 
-    // Construtor vazio
-    // Obrigatório para o funcionamento do Spring Boot e JPA
+    // ==================================================
+    // CONSTRUTOR VAZIO
+    // ==================================================
     public Medicamento() {
     }
 
-    // =========================
+    // ==================================================
     // GETTERS E SETTERS
-    // =========================
+    // ==================================================
 
-    // Retorna o ID do medicamento
     public Long getId() {
         return id;
     }
 
-    // Define o ID do medicamento
     public void setId(Long id) {
         this.id = id;
     }
 
-    // Retorna o nome do medicamento
     public String getNome() {
         return nome;
     }
 
-    // Define o nome do medicamento
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    // Retorna a dosagem do medicamento
     public String getDosagem() {
         return dosagem;
     }
 
-    // Define a dosagem do medicamento
     public void setDosagem(String dosagem) {
         this.dosagem = dosagem;
     }
 
-    // Retorna o horário do medicamento
     public String getHorario() {
         return horario;
     }
 
-    // Define o horário do medicamento
     public void setHorario(String horario) {
         this.horario = horario;
     }
 
-    // Retorna a observação do medicamento
     public String getObservacao() {
         return observacao;
     }
 
-    // Define a observação do medicamento
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
