@@ -1,73 +1,135 @@
-// Define o pacote da classe
+// Define o pacote onde a classe está localizada
 package medicontrol.controller;
 
 // Importa a entidade Medicamento
 import medicontrol.entity.Medicamento;
 
-// Importa anotação para rota GET
-import org.springframework.web.bind.annotation.GetMapping;
+// Importa o Repository responsável pela comunicação com o banco
+import medicontrol.repository.MedicamentoRepository;
 
-// Importa anotação para rota POST
-import org.springframework.web.bind.annotation.PostMapping;
+// Importa injeção de dependência do Spring
+import org.springframework.beans.factory.annotation.Autowired;
 
-// Importa anotação para receber JSON no corpo da requisição
-import org.springframework.web.bind.annotation.RequestBody;
-
-// Importa anotação de controller REST
-import org.springframework.web.bind.annotation.RestController;
-
-// Importa ArrayList
-import java.util.ArrayList;
+// Importa anotações REST do Spring Boot
+import org.springframework.web.bind.annotation.*;
 
 // Importa List
 import java.util.List;
 
-// Define a classe como controller REST
+// Define esta classe como um Controller REST
 @RestController
+
+// Define a rota principal da API
+// Todas as rotas começarão com:
+/*
+    http://localhost:8080/medicamentos
+*/
+@RequestMapping("/medicamentos")
 public class MedicamentoController {
 
-    // Cria rota GET:
+    // Injeta automaticamente o Repository
+    @Autowired
+    private MedicamentoRepository repository;
+
+    // ==================================================
+    // LISTAR TODOS OS MEDICAMENTOS
+    // ==================================================
+
+    // Endpoint GET
+    // URL:
     // http://localhost:8080/medicamentos
-    @GetMapping("/medicamentos")
+    @GetMapping
     public List<Medicamento> listarMedicamentos() {
 
-        // Cria lista de medicamentos
-        List<Medicamento> lista = new ArrayList<>();
-
-        // Cria objeto medicamento
-        Medicamento medicamento = new Medicamento();
-
-        // Define ID
-        medicamento.setId(1L);
-
-        // Define nome
-        medicamento.setNome("Dipirona");
-
-        // Define dosagem
-        medicamento.setDosagem("500mg");
-
-        // Define horário
-        medicamento.setHorario("08:00");
-
-        // Define observação
-        medicamento.setObservacao("Tomar após café");
-
-        // Adiciona medicamento na lista
-        lista.add(medicamento);
-
-        // Retorna lista em JSON
-        return lista;
+        // Retorna todos os medicamentos cadastrados no banco
+        return repository.findAll();
     }
 
-    // Cria rota POST:
+    // ==================================================
+    // BUSCAR MEDICAMENTO POR ID
+    // ==================================================
+
+    // Endpoint GET por ID
+    // URL:
+    // http://localhost:8080/medicamentos/1
+    @GetMapping("/{id}")
+    public Medicamento buscarPorId(
+
+            // Recebe o ID enviado na URL
+            @PathVariable Long id) {
+
+        // Busca o medicamento pelo ID
+        // Caso não encontre, retorna null
+        return repository.findById(id).orElse(null);
+    }
+
+    // ==================================================
+    // CADASTRAR MEDICAMENTO
+    // ==================================================
+
+    // Endpoint POST
+    // URL:
     // http://localhost:8080/medicamentos
-    @PostMapping("/medicamentos")
+    @PostMapping
     public Medicamento cadastrarMedicamento(
 
-            // Recebe JSON enviado na requisição
+            // Recebe os dados enviados em JSON
             @RequestBody Medicamento medicamento) {
 
-        // Retorna o medicamento recebido
-        return medicamento;
+        // Salva o medicamento no PostgreSQL
+        return repository.save(medicamento);
+    }
+
+    // ==================================================
+    // ATUALIZAR MEDICAMENTO
+    // ==================================================
+
+    // Endpoint PUT
+    // URL:
+    // http://localhost:8080/medicamentos/1
+    @PutMapping("/{id}")
+    public Medicamento atualizarMedicamento(
+
+            // Recebe o ID enviado na URL
+            @PathVariable Long id,
+
+            // Recebe os novos dados enviados no JSON
+            @RequestBody Medicamento medicamentoAtualizado) {
+
+        // Busca o medicamento no banco
+        Medicamento medicamento = repository.findById(id).orElse(null);
+
+        // Verifica se o medicamento existe
+        if (medicamento != null) {
+
+            // Atualiza os dados
+            medicamento.setNome(medicamentoAtualizado.getNome());
+            medicamento.setDosagem(medicamentoAtualizado.getDosagem());
+            medicamento.setHorario(medicamentoAtualizado.getHorario());
+            medicamento.setObservacao(medicamentoAtualizado.getObservacao());
+
+            // Salva as alterações no banco
+            return repository.save(medicamento);
+        }
+
+        // Retorna null caso o medicamento não exista
+        return null;
+    }
+
+    // ==================================================
+    // DELETAR MEDICAMENTO
+    // ==================================================
+
+    // Endpoint DELETE
+    // URL:
+    // http://localhost:8080/medicamentos/1
+    @DeleteMapping("/{id}")
+    public void deletarMedicamento(
+
+            // Recebe o ID enviado na URL
+            @PathVariable Long id) {
+
+        // Remove o medicamento do banco
+        repository.deleteById(id);
     }
 }
