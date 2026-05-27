@@ -1,69 +1,106 @@
 // Define pacote
 package medicontrol.security;
 
-// Importa configuração Spring
+// =========================================
+// IMPORTS BÁSICOS DO SPRING
+// =========================================
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// Importa BCrypt
+// BCrypt para criptografia de senha
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-// Importa segurança HTTP
+// Configuração de segurança HTTP
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-// Importa filtro de segurança
+// Filtro de segurança (chain)
 import org.springframework.security.web.SecurityFilterChain;
 
-// Classe de configuração
+// =========================================
+// IMPORTS IMPORTANTES (ADICIONADOS)
+// =========================================
+
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+// =========================================
+// CLASSE DE CONFIGURAÇÃO
+// =========================================
 @Configuration
 public class SecurityConfig {
 
     // =========================================
-    // PASSWORD ENCODER
+    // PASSWORD ENCODER (BCrypt)
     // =========================================
-
-    // Bean de criptografia BCrypt
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
 
+        // Cria encoder para criptografar senhas no banco
         return new BCryptPasswordEncoder();
     }
 
     // =========================================
-    // CONFIGURAÇÃO DE SEGURANÇA
+    // JWT FILTER (INJEÇÃO DO FILTRO)
     // =========================================
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // Construtor para injetar o filtro JWT
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    // =========================================
+    // CONFIGURAÇÃO DE SEGURANÇA HTTP
+    // =========================================
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // Desabilita CSRF
-        http.csrf(csrf -> csrf.disable())
+        http
+            // =========================================
+            // DESABILITA CSRF (API REST não precisa)
+            // =========================================
+            .csrf(csrf -> csrf.disable())
 
-                // Configura permissões
-                .authorizeHttpRequests(auth -> auth
+            // =========================================
+            // DEFINE SESSÃO COMO STATELESS (JWT)
+            // =========================================
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-                        // Libera autenticação
-                        .requestMatchers("/auth/**")
-                        .permitAll()
+            // =========================================
+            // REGRAS DE AUTORIZAÇÃO
+            // =========================================
+            .authorizeHttpRequests(auth -> auth
 
-                        // Libera Swagger
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
+                // Endpoints públicos (auth)
+                .requestMatchers("/auth/**").permitAll()
 
-                        // Libera medicamentos
-                        .requestMatchers("/medicamentos/**")
-                        .permitAll()
+                // Swagger liberado
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+                ).permitAll()
 
-                        // Qualquer outra rota
-                        // exige autenticação
-                        .anyRequest()
-                        .authenticated()
-                );
+                // IMPORTANTE:
+                // Agora medicamentos NÃO são mais públicos
+                .requestMatchers("/medicamentos/**").authenticated()
 
-        // Retorna configuração
+                // Qualquer outra rota exige autenticação
+                .anyRequest().authenticated()
+            )
+
+            // =========================================
+            // ADICIONA O FILTRO JWT NA CADEIA DE SEGURANÇA
+            // =========================================
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
+
+        // Retorna configuração final
         return http.build();
     }
 }
