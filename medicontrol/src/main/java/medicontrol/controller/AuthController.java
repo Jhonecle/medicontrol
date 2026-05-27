@@ -78,8 +78,8 @@ public class AuthController {
         user.setEmail(dto.getEmail());
 
         // Criptografa senha
-        user.setSenha(
-                passwordEncoder.encode(dto.getSenha())
+        user.setPassword(
+                passwordEncoder.encode(dto.getPassword())
         );
 
         // Define perfil
@@ -126,8 +126,8 @@ public class AuthController {
         // Verifica senha
         boolean senhaCorreta =
                 passwordEncoder.matches(
-                        dto.getSenha(),
-                        user.getSenha()
+                        dto.getPassword(),
+                        user.getPassword()
                 );
 
         // Se senha inválida

@@ -54,17 +54,13 @@ public class JwtService {
     // =========================================
     // VALIDAR TOKEN
     // =========================================
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token, String email) {
 
-        try {
-            String email = extractEmail(token);
+    String extractedEmail = extractEmail(token);
 
-            return email != null && !isTokenExpired(token);
-
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    return extractedEmail.equals(email) && !isTokenExpired(token);
+}
+    
 
     // =========================================
     // VERIFICAR EXPIRAÇÃO

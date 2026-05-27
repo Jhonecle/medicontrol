@@ -22,11 +22,11 @@ public class AuthRequestDTO {
         this.email = email;
     }
 
-    public String getSenha() {
+    public String getPassword() {
         return senha;
     }
 
-    public void setSenha(String senha) {
+    public void setPassword(String senha) {
         this.senha = senha;
     }
 }
