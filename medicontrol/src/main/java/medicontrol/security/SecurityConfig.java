@@ -2,68 +2,106 @@ package medicontrol.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
+    // =========================================
+    // JWT FILTER
+    // =========================================
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     // =========================================
     // PASSWORD ENCODER
     // =========================================
+
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 
     // =========================================
-    // AUTH MANAGER
+    // AUTHENTICATION MANAGER
     // =========================================
+
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
     ) throws Exception {
+
         return config.getAuthenticationManager();
     }
 
     // =========================================
     // SECURITY FILTER CHAIN
     // =========================================
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
 
         http
+
+                // Desabilita CSRF para API REST
                 .csrf(csrf -> csrf.disable())
 
-                // IMPORTANTE: API REST = STATELESS
+                // API Stateless
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
+                // Regras de autorização
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/auth/**").permitAll()
+                        // LIBERA LOGIN
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/auth/login"
+                        ).permitAll()
 
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // LIBERA REGISTER
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/auth/register"
+                        ).permitAll()
 
-                        .requestMatchers("/medicamentos/**").authenticated()
+                        // Swagger
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
+                        // Qualquer outra precisa autenticação
                         .anyRequest().authenticated()
                 )
 
-                // 🔥 AQUI ENTRA O JWT FILTER
+                // Adiciona filtro JWT
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

@@ -1,98 +1,173 @@
 // Define pacote
 package medicontrol.controller;
 
-// Importa DTOs
+// =========================================
+// IMPORTA DTOs
+// =========================================
+
+// DTO de login
 import medicontrol.dto.AuthRequestDTO;
+
+// DTO de resposta com token JWT
 import medicontrol.dto.AuthResponseDTO;
+
+// DTO de cadastro
 import medicontrol.dto.RegisterDTO;
 
-// Importa entidade User
+// =========================================
+// IMPORTA ENTIDADE
+// =========================================
+
+// Entidade User do banco de dados
 import medicontrol.entity.User;
 
-// Importa Repository
+// =========================================
+// IMPORTA REPOSITORY
+// =========================================
+
+// Repository responsável por acessar usuários
 import medicontrol.repository.UserRepository;
 
-// Importa JwtService
+// =========================================
+// IMPORTA SECURITY
+// =========================================
+
+// Serviço responsável por gerar e validar JWT
 import medicontrol.security.JwtService;
 
-// Importa validações
+// =========================================
+// IMPORTA VALIDAÇÕES
+// =========================================
+
+// Validação automática dos DTOs
 import jakarta.validation.Valid;
 
-// Importa Spring
+// =========================================
+// IMPORTA SPRING
+// =========================================
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.web.bind.annotation.*;
 
-// Importa Optional
+// =========================================
+// IMPORTA OPTIONAL
+// =========================================
+
 import java.util.Optional;
 
-// Define controller REST
+// =========================================
+// DEFINE COMO CONTROLLER REST
+// =========================================
+
 @RestController
 
-// Define rota principal
+// Rota principal:
+// /auth
 @RequestMapping("/auth")
 public class AuthController {
 
     // =========================================
-    // INJEÇÕES
+    // INJEÇÕES DE DEPENDÊNCIA
     // =========================================
 
+    // Repository de usuários
     @Autowired
     private UserRepository repository;
 
+    // Serviço JWT
     @Autowired
     private JwtService jwtService;
 
-    // Criptografia de senha
-    private BCryptPasswordEncoder passwordEncoder =
-            new BCryptPasswordEncoder();
+    // Encoder de senha BCrypt
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // =========================================
     // REGISTER
     // =========================================
 
-    // Endpoint:
-    // POST /auth/register
+    /**
+     * Endpoint responsável pelo cadastro
+     * de novos usuários.
+     *
+     * POST /auth/register
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(
 
+            // Recebe JSON do body
             @Valid @RequestBody RegisterDTO dto) {
 
-        // Verifica se email já existe
+        // =========================================
+        // VERIFICA SE EMAIL JÁ EXISTE
+        // =========================================
+
         Optional<User> usuarioExistente =
                 repository.findByEmail(dto.getEmail());
 
-        // Se existir
+        // Se já existir
         if (usuarioExistente.isPresent()) {
 
             return ResponseEntity.badRequest()
                     .body("Email já cadastrado");
         }
 
-        // Cria usuário
+        // =========================================
+        // CRIA NOVO USUÁRIO
+        // =========================================
+
         User user = new User();
 
-        // Copia dados
+        // Define nome
         user.setNome(dto.getNome());
+
+        // Define email
         user.setEmail(dto.getEmail());
 
-        // Criptografa senha
+        // =========================================
+        // CRIPTOGRAFA SENHA
+        // =========================================
+
         user.setPassword(
                 passwordEncoder.encode(dto.getPassword())
         );
 
-        // Define perfil
-        user.setRole(dto.getRole());
+        // =========================================
+        // DEFINE PERFIL
+        // =========================================
 
-        // Salva usuário
+        // Caso role venha null
+        if (dto.getRole() == null || dto.getRole().isBlank()) {
+
+            user.setRole("USER");
+
+        } else {
+
+            user.setRole(dto.getRole());
+        }
+
+        // =========================================
+        // SALVA NO BANCO
+        // =========================================
+
         repository.save(user);
 
-        // Gera token JWT
+        // =========================================
+        // GERA TOKEN JWT
+        // =========================================
+
         String token =
                 jwtService.generateToken(user.getEmail());
 
-        // Retorna token
+        // =========================================
+        // RETORNA TOKEN
+        // =========================================
+
         return ResponseEntity.ok(
                 new AuthResponseDTO(token)
         );
@@ -102,18 +177,28 @@ public class AuthController {
     // LOGIN
     // =========================================
 
-    // Endpoint:
-    // POST /auth/login
+    /**
+     * Endpoint responsável pelo login.
+     *
+     * POST /auth/login
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(
 
+            // Recebe JSON do body
             @RequestBody AuthRequestDTO dto) {
 
-        // Busca usuário pelo email
+        // =========================================
+        // BUSCA USUÁRIO PELO EMAIL
+        // =========================================
+
         Optional<User> userOptional =
                 repository.findByEmail(dto.getEmail());
 
-        // Verifica se usuário existe
+        // =========================================
+        // VERIFICA SE USUÁRIO EXISTE
+        // =========================================
+
         if (userOptional.isEmpty()) {
 
             return ResponseEntity.badRequest()
@@ -123,25 +208,37 @@ public class AuthController {
         // Obtém usuário
         User user = userOptional.get();
 
-        // Verifica senha
+        // =========================================
+        // VALIDA SENHA
+        // =========================================
+
         boolean senhaCorreta =
                 passwordEncoder.matches(
                         dto.getPassword(),
                         user.getPassword()
                 );
 
-        // Se senha inválida
+        // =========================================
+        // SENHA INVÁLIDA
+        // =========================================
+
         if (!senhaCorreta) {
 
             return ResponseEntity.badRequest()
                     .body("Senha inválida");
         }
 
-        // Gera token JWT
+        // =========================================
+        // GERA TOKEN JWT
+        // =========================================
+
         String token =
                 jwtService.generateToken(user.getEmail());
 
-        // Retorna token
+        // =========================================
+        // RETORNA TOKEN
+        // =========================================
+
         return ResponseEntity.ok(
                 new AuthResponseDTO(token)
         );
