@@ -1,5 +1,5 @@
 // Define pacote
-package medicontrol.dto;
+package medicontrol.dto.auth;
 
 // DTO de resposta JWT
 public class AuthResponseDTO {
