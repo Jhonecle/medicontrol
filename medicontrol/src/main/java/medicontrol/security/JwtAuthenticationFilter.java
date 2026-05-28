@@ -106,6 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Obtém caminho da requisição
         String path = request.getServletPath();
+        System.out.println("PATH: " + path);
 
         // Retorna TRUE para ignorar filtro
         return path.startsWith("/auth")
@@ -162,12 +163,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // =========================================
 
         jwt = authHeader.substring(7);
+        System.out.println("TOKEN RECEBIDO: " + jwt);
 
         // =========================================
         // EXTRAI EMAIL DO TOKEN
         // =========================================
 
         userEmail = jwtService.extractEmail(jwt);
+        System.out.println("EMAIL EXTRAÍDO: " + userEmail);
+        
 
         // =========================================
         // AUTENTICA USUÁRIO
@@ -197,7 +201,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(
                     jwt,
                     userDetails.getUsername()
+                    
             )) {
+                System.out.println("TOKEN VÁLIDO!");
 
                 // =========================================
                 // CRIA AUTENTICAÇÃO SPRING
