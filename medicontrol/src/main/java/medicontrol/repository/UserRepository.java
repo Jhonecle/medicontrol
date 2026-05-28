@@ -2,7 +2,7 @@
 package medicontrol.repository;
 
 // Importa entidade User
-import medicontrol.entity.User;
+import medicontrol.user.User;
 
 // Importa JPA Repository
 import org.springframework.data.jpa.repository.JpaRepository;

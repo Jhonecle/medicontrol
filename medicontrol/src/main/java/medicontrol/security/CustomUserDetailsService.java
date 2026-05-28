@@ -1,7 +1,7 @@
 package medicontrol.security;
 
 // Entidade do usuário do sistema (vem do banco)
-import medicontrol.entity.User;
+import medicontrol.user.User;
 
 // Repositório responsável por acessar o banco de dados
 import medicontrol.repository.UserRepository;
@@ -67,7 +67,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .password(user.getPassword())
 
                 // Define as permissões do usuário (ROLE simples por enquanto)
-                .authorities("USER")
+                .authorities("ROLE_" + user.getRole())
 
                 // Constrói o objeto final usado pelo Spring Security
                 .build();

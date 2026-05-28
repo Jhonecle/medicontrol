@@ -2,7 +2,8 @@ package medicontrol.controller;
 
 import medicontrol.dto.auth.AuthResponseDTO;
 import medicontrol.dto.auth.RegisterRequestDTO;
-import medicontrol.entity.User;
+import medicontrol.user.Role;
+import medicontrol.user.User;
 import medicontrol.repository.UserRepository;
 import medicontrol.security.JwtService;
 
@@ -47,11 +48,9 @@ public class AuthController {
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
 
-        user.setPassword(
-                passwordEncoder.encode(dto.getPassword())
-        );
+       user.setSenha(passwordEncoder.encode(request.getSenha()));
 
-        user.setRole("USER");
+        user.setRole(Role.USER);
 
         repository.save(user);
 
