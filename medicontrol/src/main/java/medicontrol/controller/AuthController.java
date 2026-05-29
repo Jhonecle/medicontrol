@@ -48,7 +48,7 @@ public class AuthController {
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
 
-       user.setSenha(passwordEncoder.encode(request.getSenha()));
+       user.setSenha(passwordEncoder.encode(dto.getPassword()));
 
         user.setRole(Role.USER);
 
