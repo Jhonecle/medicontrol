@@ -6,6 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
+// =========================================
+// IMPORT PARA HABILITAR @PreAuthorize
+// =========================================
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,6 +35,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 5. Política de sessão (Stateless)
  */
 @Configuration
+@EnableMethodSecurity
+// ↑ Habilita o uso de @PreAuthorize nos controllers.
+// Sem isso, as anotações de role são ignoradas.
+// Permite proteger rotas por role:
+// → @PreAuthorize("hasRole('ADMIN')")
+// → @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class SecurityConfig {
 
     // =========================================
