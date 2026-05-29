@@ -1,49 +1,17 @@
 package medicontrol.security;
 
-// ===============================
-// IMPORTAÇÕES JAKARTA SERVLET
-// ===============================
-
-// Responsável por continuar a cadeia de filtros
 import jakarta.servlet.FilterChain;
-
-// Exceções de servlet
 import jakarta.servlet.ServletException;
-
-// Request HTTP
 import jakarta.servlet.http.HttpServletRequest;
-
-// Response HTTP
 import jakarta.servlet.http.HttpServletResponse;
 
-// ===============================
-// IMPORTAÇÕES SPRING SECURITY
-// ===============================
-
-// Token de autenticação do Spring
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-// Contexto de autenticação atual
 import org.springframework.security.core.context.SecurityContextHolder;
-
-// Interface padrão de usuário autenticável
 import org.springframework.security.core.userdetails.UserDetails;
-
-// Serviço responsável por carregar usuário do banco
 import org.springframework.security.core.userdetails.UserDetailsService;
-
-// Detalhes da autenticação HTTP
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-
-// Marca a classe como componente gerenciado pelo Spring
 import org.springframework.stereotype.Component;
-
-// Filtro executado uma única vez por requisição
 import org.springframework.web.filter.OncePerRequestFilter;
-
-// ===============================
-// IMPORTAÇÃO IO
-// ===============================
 
 import java.io.IOException;
 
@@ -63,7 +31,6 @@ import java.io.IOException;
  * Fluxo:
  *
  * Request → JWT Filter → SecurityContext → Controller
- *
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -94,21 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * IGNORA ROTAS PÚBLICAS
      * =========================================
      *
-     * Este método impede que o filtro JWT
-     * seja executado em rotas públicas.
-     *
-     * Sem isso:
-     * → /auth/login retorna 403
-     * → /auth/register retorna 403
+     * Impede que o filtro JWT seja executado
+     * em rotas públicas como /auth/login
+     * e /auth/register.
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
-        // Obtém caminho da requisição
         String path = request.getServletPath();
-        System.out.println("PATH: " + path);
 
-        // Retorna TRUE para ignorar filtro
+        // Retorna TRUE para ignorar o filtro
         return path.startsWith("/auth")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs");
@@ -119,73 +81,56 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * FILTRO PRINCIPAL JWT
      * =========================================
      *
-     * Executado em TODAS requisições protegidas
+     * Executado em todas as requisições protegidas.
+     * Valida o token e autentica o usuário
+     * no contexto do Spring Security.
      */
     @Override
     protected void doFilterInternal(
-
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
-
     ) throws ServletException, IOException {
 
         // =========================================
         // OBTÉM HEADER AUTHORIZATION
         // =========================================
-
-        // Exemplo:
-        // Authorization: Bearer eyJhbGciOi...
+        // Exemplo: Authorization: Bearer eyJhbGciOi...
         final String authHeader =
                 request.getHeader("Authorization");
 
-        // Token JWT
         final String jwt;
-
-        // Email extraído do token
         final String userEmail;
 
         // =========================================
         // VERIFICA SE EXISTE TOKEN
         // =========================================
-
-        // Se não existir token:
-        // → continua fluxo normal
+        // Se não existir, continua sem autenticar
         if (authHeader == null
                 || !authHeader.startsWith("Bearer ")) {
-
             filterChain.doFilter(request, response);
             return;
         }
 
         // =========================================
-        // REMOVE "Bearer "
+        // EXTRAI TOKEN E EMAIL
         // =========================================
-
+        // Remove o prefixo "Bearer " do header
         jwt = authHeader.substring(7);
-        System.out.println("TOKEN RECEBIDO: " + jwt);
-
-        // =========================================
-        // EXTRAI EMAIL DO TOKEN
-        // =========================================
-
         userEmail = jwtService.extractEmail(jwt);
-        System.out.println("EMAIL EXTRAÍDO: " + userEmail);
-        
 
         // =========================================
         // AUTENTICA USUÁRIO
         // =========================================
-
         // Só autentica se:
-        // 1. Email existir
-        // 2. Usuário ainda não autenticado
+        // 1. Email existir no token
+        // 2. Usuário ainda não estiver autenticado
         if (userEmail != null
                 && SecurityContextHolder
                 .getContext()
                 .getAuthentication() == null) {
 
-            // Carrega usuário do banco
+            // Carrega usuário do banco pelo email
             UserDetails userDetails =
                     userDetailsService
                             .loadUserByUsername(userEmail);
@@ -193,40 +138,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // =========================================
             // VALIDA TOKEN
             // =========================================
-
-            // Verifica:
-            // → token válido
-            // → token pertence ao usuário
-            // → token não expirou
+            // Verifica assinatura, email e expiração
             if (jwtService.isTokenValid(
-                    jwt,
-                    userDetails.getUsername()
-                    
-            )) {
-                System.out.println("TOKEN VÁLIDO!");
+                    jwt, userDetails.getUsername())) {
 
                 // =========================================
-                // CRIA AUTENTICAÇÃO SPRING
+                // REGISTRA AUTENTICAÇÃO NO CONTEXTO
                 // =========================================
-
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-
                                 userDetails,
                                 null,
                                 userDetails.getAuthorities()
                         );
 
-                // Adiciona detalhes da request
                 authToken.setDetails(
-
                         new WebAuthenticationDetailsSource()
                                 .buildDetails(request)
                 );
-
-                // =========================================
-                // SALVA AUTENTICAÇÃO NO CONTEXTO
-                // =========================================
 
                 SecurityContextHolder
                         .getContext()
@@ -237,7 +166,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // =========================================
         // CONTINUA FLUXO DA REQUISIÇÃO
         // =========================================
-
         filterChain.doFilter(request, response);
     }
 }
